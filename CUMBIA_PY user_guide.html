@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CUMBIA_PY: Theoretical Background and User Guide</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+            background-color: #f9f9f9;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 2.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 0.5rem;
+        }
+        h2 {
+            color: #2980b9;
+            margin-top: 2rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.3rem;
+        }
+        h3 {
+            color: #34495e;
+            margin-top: 1.5rem;
+        }
+        p {
+            margin-bottom: 1rem;
+        }
+        ul, ol {
+            margin-bottom: 1rem;
+            padding-left: 2rem;
+        }
+        li {
+            margin-bottom: 0.5rem;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: "Consolas", "Courier New", monospace;
+            font-size: 0.9em;
+            color: #d63200;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 1rem;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+            color: #333;
+        }
+        blockquote {
+            background-color: #e8f4f8;
+            border-left: 4px solid #2980b9;
+            margin: 1.5rem 0;
+            padding: 1rem;
+            font-style: italic;
+        }
+        .contact-info {
+            font-size: 1.1em;
+            color: #555;
+            margin-bottom: 2rem;
+        }
+        hr {
+            border: 0;
+            border-top: 1px solid #ddd;
+            margin: 2rem 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>CUMBIA_PY  __  User Guide</h1>
+    <p class="contact-info"><strong>Contact:</strong> luis.montejo@upr.edu</p>
+
+    <hr>
+
+    <h2>1. Introduction</h2>
+    <p>CUMBIA is a comprehensive analytical tool originally developed to evaluate the monotonic behavior of reinforced concrete (RC) members with circular or rectangular cross-sections. The program performs rigorous moment-curvature analyses and computes the analytical force-displacement response of the member, providing structural engineers and researchers with a clear evaluation of potential deformation limit states.</p> 
+
+    <p>To evaluate these performance levels, CUMBIA requires basic input variables defining the cross-section dimensions, member length, applied axial load, reinforcement details, and material properties. The program accounts for complex structural behaviors, including strain penetration, shear deformations, and various buckling mechanics, ultimately outputting detailed moment-curvature responses, structural limit states, and interaction diagrams.</p>
+
+    <h3>The Transition to Python (CUMBIA_PY)</h3>
+    <p>To enhance accessibility, computational stability, and integration with modern data science workflows, the original MATLAB algorithms (<code>CUMBIACIR.m</code> and <code>CUMBIARECT.m</code>) have been entirely refactored into Python (<code>CUMBIA_CIR.py</code> and <code>CUMBIA_RECT.py</code>). This modernization leverages powerful open-source libraries—such as <code>numpy</code>, <code>pandas</code>, and <code>matplotlib</code>—to deliver a faster, more robust, and visually comprehensive analysis framework.</p> 
+
+    <h3>Key Upgrades and Enhancements</h3>
+    <p>The transition to Python includes significant deep theoretical advancements, bug fixes, and cosmetic upgrades that modernize the CUMBIA workflow:</p>
+
+    <p><strong>Advanced Theoretical Mechanics</strong></p>
+    <ul>
+        <li><strong>Modified Plastic-Hinge Method:</strong> Introduces the Goodnight et al. (2016) modified plastic-hinge method. This approach differentiates itself by decoupling column flexure and strain penetration deformation components. Strain penetration is accounted for by placing an equivalent curvature block at the column interface to describe the fixed-end rotation. Furthermore, the method utilizes a linear plastic curvature distribution to emulate measured curvature profiles, applying separate triangular plastic-hinge lengths for tensile and compressive strain-displacement predictions. Additionally, the traditional Priestley, Calvi, and Kowalsky (PCK) 2007 lumped plastic-hinge approach remains available as an analytical option for users.</li>
+        <li><strong>Modern Bar Buckling Limits:</strong> Integrates the Goodnight et al. (2015) Strain-Based and Drift-Based buckling models. While these models were originally intended and calibrated specifically for circular sections, they have been adapted for rectangular columns using buckling mechanics principles. The rectangular module explicitly substitutes the volumetric ratio with the directional transverse steel ratio, isolating the specific tie-legs that physically resist outward bar buckling. However, users should exercise caution when interpreting these specific limit states for rectangular columns, as this theoretical adaptation currently lacks experimental validation.</li>
+        <li><strong>Spiral Yielding Limit State:</strong> The circular module now automatically calculates the compressive strain and associated displacement at the initial yielding of the confinement steel. This compressive strain limit is estimated using an empirical expression developed by Goodnight et al. (2015), which evaluates the strain as a function of the column's longitudinal reinforcement ratio and the yield strain of the transverse steel.</li>
+        <li><strong>P-Delta Effects:</strong> Introduces a new dedicated toggle to account for P-Delta effects. This is approximated by calculating the geometric overturning moment and subtracting the corresponding shear reduction from the baseline lateral force capacity.</li>
+    </ul>
+
+    <p><strong>Enhanced Computational Stability</strong></p>
+    <ul>
+        <li><strong>Robust Neutral Axis Interpolation:</strong> Eliminates legacy solver crashes caused by interpolating the neutral axis against non-monotonic moment arrays. The solver now securely interpolates the neutral axis against monotonically increasing strains.</li>
+        <li><strong>High Axial Load Filtering:</strong> Incorporates a pre-filter to discard physically impossible small strains that cannot mathematically support high applied axial compressive loads, preventing solver drift during initial loading phases.</li>
+        <li><strong>Non-Convergence Fail-Safes:</strong> The moment-curvature solver now features a robust bypass; if equilibrium fails to converge within the maximum iterations, the script safely resets the depth guess and skips to the next strain increment rather than crashing.</li>
+    </ul>
+
+    <p><strong>Modernized Workflows and Outputs</strong></p>
+    <ul>
+        <li><strong>Scaled 2D Cross-Section Plotting:</strong> Automatically generates perfectly scaled 2D visuals of the cross-section, displaying unconfined cover, confined core, transverse reinforcement, exact longitudinal bar placements, and mathematical integration layers.</li>
+        <li><strong>Automated Reinforcement Generation:</strong> The rectangular module features a smart toggle to auto-generate a perfectly spaced, uniform peripheral reinforcement matrix, drastically speeding up section definition.</li>
+        <li><strong>Unified Multi-Page PDF Reports:</strong> Compiles all generated figures and a cleanly formatted text summary table into a single, professional PDF document.</li>
+        <li><strong>True Excel Export:</strong> Replaces raw text file outputs with native <code>.xlsx</code> workbooks, systematically separating the Summary Report, Moment-Curvature data, and Interaction Diagrams into clean, distinct spreadsheet tabs.</li>
+    </ul>
+
+    <hr>
+
+    <h2>2. Material Models</h2>
+
+    <p>CUMBIA_PY requires the definition of constitutive models to generate the stress-strain relationships for confined concrete, unconfined cover concrete, and longitudinal reinforcing steel.</p> 
+
+    <blockquote>
+        <strong>Note on Theoretical Formulations:</strong> This guide focuses on the practical implementation. For the complete mathematical derivations and raw equations governing the Mander concrete models and the King/Raynor steel models, users are encouraged to refer to the original CUMBIA technical report (Montejo and Kowalsky, 2007) and its referenced foundational papers.
+    </blockquote>
+
+    <h3>2.1 Concrete Constitutive Models</h3>
+    <p>The concrete stress-strain relationships are governed by the Mander theoretical models. Users can assign models independently to the core and the cover using the <code>confined</code> and <code>unconfined</code> string variables.</p> 
+
+    <p><strong>Available Options:</strong></p>
+    <ul>
+        <li><code>'mc'</code>: Mander Confined Concrete Model.</li>
+        <li><code>'mu'</code>: Mander Unconfined Concrete Model.</li>
+        <li><code>'mclw'</code>: Mander Confined Lightweight Concrete Model.</li>
+        <li><code>'mulw'</code>: Mander Unconfined Lightweight Concrete Model.</li>
+    </ul>
+
+    <p><strong>Required Material Properties:</strong></p>
+    <p>To generate these curves, the user must define the concrete compressive strength (<i>f'<sub>c</sub></i>). The elastic modulus (<i>E<sub>c</sub></i>) will default to 5000&radic;<i>f'<sub>c</sub></i> but can be manually overridden. The model also relies on the unconfined concrete strain at peak stress (<code>eco</code>), the maximum transverse steel strain (<code>esm</code>), and the maximum unconfined spalling strain (<code>espall</code>).</p>
+
+    <h3>2.2 Reinforcing Steel Models</h3>
+    <p>The longitudinal reinforcing steel behavior is assigned using the <code>rebar</code> string variable.</p> 
+
+    <p><strong>Available Options:</strong></p>
+    <ul>
+        <li><code>'ra'</code>: Raynor Model.</li>
+        <li><code>'ks'</code>: King Model.</li>
+    </ul>
+
+    <p><strong>Required Material Properties:</strong></p>
+    <p>Both models require the user to specify the longitudinal yielding stress (<i>f<sub>y</sub></i>), ultimate stress (<i>f<sub>su</sub></i>), strain at the onset of strain hardening (<code>esh</code>), and ultimate strain (<code>esu</code>). The transverse steel yielding stress (<i>f<sub>yh</sub></i>) must also be provided for confinement calculations. If the Raynor model (<code>'ra'</code>) is selected, the user must additionally define the slope of the yield plateau (<code>Ey</code>) and the parameter defining the curvature of the strain-hardening curve (<code>C1</code>).</p>
+
+    <hr>
+
+    <h2>3. Section Properties &amp; Reinforcement</h2>
+
+    <p>Defining the physical geometry and reinforcement layout of the structural member is a straightforward process in CUMBIA_PY. The required variables differ slightly depending on whether you are analyzing a circular or rectangular cross-section.</p>
+
+    <h3>3.1 Circular Sections (<code>CUMBIA_CIR.py</code>)</h3>
+    <p>For circular columns, the geometry and reinforcement are inherently symmetric, making the input requirements highly compact.</p> 
+
+    <p><strong>Section Geometry:</strong></p>
+    <ul>
+        <li><code>D</code>: Section diameter in mm.</li>
+        <li><code>clb</code>: Clear cover to the longitudinal bars in mm.</li>
+    </ul>
+
+    <p><strong>Longitudinal Reinforcement:</strong></p>
+    <ul>
+        <li><code>nbl</code>: Total number of longitudinal bars.</li>
+        <li><code>Dbl</code>: Diameter of the longitudinal bars in mm.</li>
+    </ul>
+
+    <p><strong>Transverse Reinforcement:</strong></p>
+    <ul>
+        <li><code>Dh</code>: Diameter of the transverse reinforcement (hoops or spirals) in mm.</li>
+        <li><code>s</code>: Spacing (or pitch) of the transverse steel in mm.</li>
+        <li><code>type_reinf</code>: Type of transverse reinforcement, specified as either <code>'spirals'</code> or <code>'hoops'</code>.</li>
+    </ul>
+
+    <h3>3.2 Rectangular Sections (<code>CUMBIA_RECT.py</code>)</h3>
+    <p>Rectangular sections require more detailed inputs to capture the distribution of bars across the width and depth of the member.</p> 
+
+    <p><strong>Section Geometry:</strong></p>
+    <ul>
+        <li><code>H</code>: Section height/depth (perpendicular to the axis of bending) in mm.</li>
+        <li><code>B</code>: Section width in mm.</li>
+        <li><code>clb</code>: Clear cover to the longitudinal bars in mm.</li>
+    </ul>
+
+    <p><strong>Transverse Reinforcement:</strong></p>
+    <ul>
+        <li><code>dv</code>: Diameter of the transverse reinforcement in mm.</li>
+        <li><code>s</code>: Spacing of the transverse steel in mm.</li>
+        <li><code>ncx</code>: Number of transverse steel legs in the X-direction (parallel to width <code>B</code>, acting to confine the core and resist Y-shear).</li>
+        <li><code>ncy</code>: Number of transverse steel legs in the Y-direction (parallel to height <code>H</code>, acting to resist X-shear).</li>
+    </ul>
+
+    <p><strong>Longitudinal Reinforcement (The <code>MLR</code> Matrix):</strong></p>
+    <p>In CUMBIA_PY, rectangular longitudinal reinforcement is defined using the <code>MLR</code> (Matrix of Longitudinal Reinforcement). Each row in the matrix represents a specific layer of steel and consists of three values:</p>
+    <ol>
+        <li><strong>Depth:</strong> Distance from the extreme top compression fiber to the center of the bars in mm.</li>
+        <li><strong>Number of Bars:</strong> Quantity of bars in that specific horizontal layer.</li>
+        <li><strong>Bar Diameter:</strong> Diameter of the bars in that layer in mm.</li>
+    </ol>
+
+    <h3>3.3 The Python Upgrades: Automation &amp; Visualization</h3>
+    <p>Defining complex rectangular sections manually in the old MATLAB scripts was tedious and prone to coordinate errors. The transition to Python introduces two workflow upgrades to eliminate these issues:</p>
+
+    <p><strong>1. Automated <code>MLR</code> Generation</strong></p>
+    <p>For standard rectangular columns with a uniform peripheral reinforcement layout, users no longer need to manually calculate depths and build the <code>MLR</code> matrix. CUMBIA_PY includes a built-in auto-generator:</p>
+    <ul>
+        <li>Set <code>auto_generate_MLR = True</code>.</li>
+        <li>Specify <code>n_top_bot</code> (number of bars on the top and bottom faces), <code>n_side</code> (number of intermediate bars strictly along each side), and the uniform bar diameter <code>Dbl_auto</code>.</li>
+        <li>The script will automatically calculate the exact vertical layer spacings and horizontal distributions, perfectly nesting the bars against the inner boundary of the transverse ties. Users can still set the toggle to <code>False</code> to input a <code>custom_MLR</code> matrix for asymmetric layouts.</li>
+    </ul>
+
+    <p><strong>2. Scaled 2D Cross-Section Plotting</strong></p>
+    <p>To provide instant verification of your geometric inputs, both Python scripts now feature a built-in cross-section plotter (<code>plot_circular_section</code> and <code>plot_rectangular_section</code>). Utilizing <code>matplotlib.patches</code>, the program generates a perfectly scaled 2D visual of your column before the numerical analysis even begins.</p>
+    <ul>
+        <li>It displays the unconfined cover (gray), the confined concrete core (blue), and the transverse steel boundary (red dashed line).</li>
+        <li>It physically maps every longitudinal bar (black circles) to its exact X-Y coordinate.</li>
+        <li>It plots the exact horizontal discretization layers (the "slices" or "fibers") the algorithm uses to perform the moment-curvature integration, proving visually that the unconfined and confined regions are meshed flawlessly.</li>
+    </ul>
+
+    <hr>
+
+    <h2>4. Loading &amp; Control Parameters</h2>
+
+    <p>To evaluate the member's response, CUMBIA_PY requires the definition of the global kinematics, applied loads, performance strain limits, and numerical solver tolerances. These inputs govern how the algorithm iterates through the moment-curvature analysis and identifies critical damage states.</p>
+
+    <h3>4.1 Member Properties &amp; Loading</h3>
+    <p>The following variables define the macroscopic behavior and loading conditions of the column:</p>
+    <ul>
+        <li><code>L</code>: Member clear length in mm.</li>
+        <li><code>bending</code>: Specifies the bending configuration as either <code>'single'</code> (cantilever) or <code>'double'</code> (fixed-fixed).</li>
+        <li><code>ductilitymode</code>: Specified as <code>'uniaxial'</code> or <code>'biaxial'</code>. This alters the concrete shear strength degradation factor (<i>V<sub>c</sub></i>) in the UCSD shear assessment.</li>
+        <li><code>p_delta</code>: A toggle (<code>'y'</code> or <code>'n'</code>) to include P-Delta effects. If enabled, it is approximated by subtracting the geometric overturning moment from the baseline force capacity using the total displacement.</li>
+        <li><code>hinge_method</code>: Selects the equivalent curvature distribution method to translate strains to displacements. Options are <code>'pck'</code> (Priestley et al. 2007) or <code>'modified_lpr'</code> (Goodnight et al. 2016).</li>
+        <li><code>P_kN</code>: Applied axial load in kN, where positive values indicate compression and negative values indicate tension.</li>
+    </ul>
+
+    <h3>4.2 Strain Limits for Limit States &amp; Yield Surface</h3>
+    <p>CUMBIA_PY flags specific performance limit states by tracking material strains throughout the analysis. Users must define these thresholds:</p>
+    <ul>
+        <li><code>csid</code> / <code>ssid</code>: Concrete and steel strain limits used specifically to generate the axial-moment (P-M) interaction diagram.</li>
+        <li><code>ecser</code> / <code>esser</code>: Serviceability strain limits for concrete compression and steel tension, respectively.</li>
+        <li><code>ecdam</code> / <code>esdam</code>: Damage control strain limits.</li>
+    </ul>
+    <p><strong>Damage Control Fallback:</strong> If a specific numeric value for concrete damage control is unknown, users can set <code>ecdam = 'twth'</code>. The script will automatically calculate and assign 2/3 of the ultimate Mander concrete strain as the damage control limit.</p>
+
+    <h3>4.3 Environmental &amp; Numerical Controls</h3>
+    <p>These variables control phenomenological behaviors and the precision of the numerical solver:</p>
+    <ul>
+        <li><code>temp</code>: Temperature of the specimen in Celsius, which modifies the concrete tensile strength calculation for cracking.</li>
+        <li><code>kLsp</code>: Strain penetration constant (typically 0.022 at ambient temperatures or 0.011 at -40&deg;C).</li>
+        <li><code>itermax</code>: The maximum number of iterations allowed for the solver to find the neutral axis depth at each strain increment.</li>
+        <li><code>ncl</code>: Number of concrete layers (slices) used to discretize the cross-section for mathematical integration.</li>
+        <li><code>tolerance</code>: Force equilibrium tolerance multiplier. The true tolerance is calculated as <code>tolerance * Area * f'c</code>.</li>
+        <li><code>dels</code>: The strain step increment (&Delta;&epsilon;) used to build the high-resolution material model arrays.</li>
+    </ul>
+
+    <hr>
+
+    <h2>5. Program Outputs &amp; Results</h2>
+
+    <p>Once the CUMBIA_PY script completes the numerical analysis, it automatically compiles and exports a comprehensive suite of results. The transition to Python completely overhauled the data export process, replacing scattered text files and pop-up windows with consolidated, professional-grade deliverables.</p>
+
+    <p>All generated files will share the prefix defined by the <code>name</code> variable at the beginning of the script.</p>
+
+    <h3>5.1 Visualizations &amp; Generated Plots</h3>
+    <p>The script utilizes <code>matplotlib</code> to generate nine distinct, publication-ready figures that map the physical and theoretical behavior of the structural member. These figures are saved individually as high-resolution PNG files and appended to the final PDF report:</p>
+    <ul>
+        <li><strong>Figure 0: Discretized Section Plot:</strong> A perfectly scaled 2D visual mapping of the concrete core, cover, transverse steel, individual longitudinal bars, and the mathematical integration layers.</li>
+        <li><strong>Figure 1 &amp; 2: Material Models:</strong> The stress-strain relationships for the confined/unconfined concrete and the reinforcing steel.</li>
+        <li><strong>Figure 3: Moment-Curvature Relation:</strong> Plots the base moment-curvature response against the bilinear approximation.</li>
+        <li><strong>Figure 4: Strain-Based Buckling Models:</strong> Plots the column strain ductility behavior against the Goodnight et al. (2015) and Moyer-Kowalsky buckling strain limits.</li>
+        <li><strong>Figure 5: Berry-Eberhard Buckling Model:</strong> Evaluates the plastic rotation against the Berry-Eberhard buckling limit.</li>
+        <li><strong>Figure 6: Force-Displacement Relation:</strong> Plots the total structural response, comparing the flexural backbone with the assessed and design shear capacities. Markers indicate specific failure modes (e.g., buckling, shear failure, spiral yielding).</li>
+        <li><strong>Figure 7: Potential Deformation Limit States:</strong> Visually shades the force-displacement curve into Serviceability, Damage Control, and Ultimate zones based on the defined strain limits.</li>
+        <li><strong>Figure 8: Interaction Diagram:</strong> If <code>interaction = 'y'</code>, this plots the Axial Load vs. Moment (P-M) yield surface and the approximation for Non-Linear Time History Analysis (NLTHA).</li>
+    </ul>
+
+    <h3>5.2 Structured Excel Export</h3>
+    <p>The legacy MATLAB script outputted a basic text file disguised with a <code>.xls</code> extension. CUMBIA_PY leverages the <code>pandas</code> library to build and export a true, multi-tab <code>.xlsx</code> workbook containing all analytical data.</p> 
+
+    <p>The workbook is structured into three clean tabs:</p>
+    <ol>
+        <li><strong>Summary_Report:</strong> A tabulated version of all inputs, structural properties, equivalent plastic hinge parameters, and limit state results.</li>
+        <li><strong>Moment_Curvature:</strong> The raw numerical arrays for every successful integration step, including cover/core strains, neutral axis depth, steel strain, moment, curvature, lateral force, and flexural/shear displacements.</li>
+        <li><strong>Interaction:</strong> The moment and axial load arrays generating the yield surface (if requested).</li>
+    </ol>
+
+    <h3>5.3 Unified PDF Report</h3>
+    <p>CUMBIA_PY utilizes the <code>PdfPages</code> library to automatically compile a complete, multi-page PDF document (<code>{name}_Full_Report.pdf</code>).</p> 
+    <ul>
+        <li><strong>Text Summary Pages:</strong> The first section of the PDF prints a highly formatted text report detailing the column properties, bilinear approximations, active hinge methods, and deformation limit states.</li>
+        <li><strong>Appended Figures:</strong> Following the text summary, all generated figures (Figures 0 through 8) are systematically appended, creating a single, cohesive analysis report ready for review or archiving.</li>
+    </ul>
+
+    <hr>
+
+    <h2>6. Installation &amp; Dependencies</h2>
+
+    <p>CUMBIA_PY is designed to be lightweight and relies entirely on standard open-source scientific libraries available in Python 3.</p>
+
+    <h3>6.1 Required Python Libraries</h3>
+    <p>To execute the scripts successfully, your Python environment must have the following packages installed:</p>
+    <ul>
+        <li><strong>NumPy:</strong> Used for high-performance vector and array mathematics during the moment-curvature integrations.</li>
+        <li><strong>Pandas:</strong> Utilized for data structuring and the automated export of the <code>.xlsx</code> workbook results.</li>
+        <li><strong>Matplotlib:</strong> Required for generating the 2D cross-section plots, the suite of structural response figures, and compiling the final <code>PdfPages</code> report.</li>
+    </ul>
+
+    <p>You can install all necessary dependencies via <code>pip</code> in your command line or terminal:</p>
+<pre><code>pip install numpy pandas matplotlib</code></pre>
+
+    <h3>6.2 Running the Program</h3>
+    <p>To run the analysis, ensure that the core execution scripts (<code>CUMBIA_CIR.py</code> and/or <code>CUMBIA_RECT.py</code>) are located in the same directory as the required material models library. The script inherently calls <code>import material_models as mm</code>. If <code>material_models.py</code> is missing from the working directory, the script will immediately throw an <code>ImportError</code> and fail to execute.</p>
+
+    <hr>
+
+    <h2>7. References</h2>
+
+    <p>The mathematical mechanics, limit state thresholds, and constitutive models utilized within CUMBIA_PY are derived from the following foundational structural engineering literature:</p>
+
+    <ul>
+        <li><strong>Berry, M. P., &amp; Eberhard, M. O. (2005).</strong> Practical performance model for bar buckling. <em>Journal of Structural Engineering</em>, 131(7), 1060-1070.</li>
+        <li><strong>Calvi, G. M., Priestley, M. J. N., &amp; Kowalsky, M. J. (2007).</strong> Displacement-based seismic design of structures. <em>New Zealand conference on earthquake engineering</em>.</li>
+        <li><strong>Goodnight, J. C., Kowalsky, M. J., &amp; Nau, J. M. (2013).</strong> Effect of load history on performance limit states of circular bridge columns. <em>Journal of Bridge Engineering</em>, 18(12), 1383-1396.</li>
+        <li><strong>Goodnight, J. C., Kowalsky, M. J., &amp; Nau, J. M. (2016).</strong> Modified plastic-hinge method for circular RC bridge columns. <em>Journal of Structural Engineering</em>, 142(11), 04016103.</li>
+        <li><strong>Goodnight, J. C., Kowalsky, M. J., &amp; Nau, J. M. (2016).</strong> Strain limit states for circular RC bridge columns. <em>Earthquake Spectra</em>, 32(3), 1627-1652.</li>
+        <li><strong>King, D. J., Priestley, M. J. N., &amp; Park, R. (1986).</strong> Computer programs for concrete column design. <em>Department of Civil Engineering, University of Canterbury</em>.</li>
+        <li><strong>Mander, J. B., Priestley, M. J., &amp; Park, R. (1988).</strong> Theoretical stress-strain model for confined concrete. <em>Journal of structural engineering</em>, 114(8), 1804-1826.</li>
+        <li><strong>Montejo, L. A., &amp; Kowalsky, M. J. (2007).</strong> CUMBIA—Set of codes for the analysis of reinforced concrete members. <em>CFL technical rep. no. IS-07</em>, 1.</li>
+        <li><strong>Moyer, M. J., &amp; Kowalsky, M. J. (2003).</strong> Influence of tension strain on buckling of reinforcement in concrete columns. <em>ACI Structural journal</em>, 100(1), 75-85.</li>
+    </ul>
+</div>
+
+</body>
+</html>
