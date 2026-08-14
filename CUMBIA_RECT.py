@@ -1,3 +1,6 @@
+'''
+Montejo, L. (2026). LuisMontejo/CUMBIA_PY: CUMBIA_PY [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.21926251
+'''
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
