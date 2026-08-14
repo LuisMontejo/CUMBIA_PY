@@ -1,4 +1,6 @@
 # CUMBIA_PY
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21926251.svg)](https://doi.org/10.5281/zenodo.21926251)
+
 **Contact:** luis.montejo@upr.edu
 ---
 
@@ -23,3 +25,20 @@ The transition to Python includes significant deep theoretical advancements, bug
 *   **Automated Reinforcement Generation:** The rectangular module features a smart toggle to auto-generate a perfectly spaced, uniform peripheral reinforcement matrix.
 *   **Unified Multi-Page PDF Reports:** Compiles all generated figures and a cleanly formatted text summary table into a single, professional PDF document.
 *   **True Excel Export:** Replaces raw text file outputs with native `.xlsx` workbooks.
+
+## Citation
+
+If you use CUMBIA_PY please cite it as:
+
+> Luis Montejo. (2026). LuisMontejo/CUMBIA_PY: CUMBIA_PY [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.21926251
+
+**BibTeX:**
+```bibtex
+@software{montejo_cumbia_py,
+  author       = {Luis Montejo},
+  title        = {LuisMontejo/CUMBIA\_PY: CUMBIA\_PY},
+  year         = 2026,
+  publisher    = {Zenodo},
+  doi          = {10.5281/zenodo.21926251},
+  url          = {https://doi.org/10.5281/zenodo.21926251}
+}
