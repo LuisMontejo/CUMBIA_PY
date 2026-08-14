@@ -30,7 +30,7 @@ The transition to Python includes significant deep theoretical advancements, bug
 
 If you use CUMBIA_PY please cite it as:
 
-> Luis Montejo. (2026). LuisMontejo/CUMBIA_PY: CUMBIA_PY [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.21926251
+> Montejo, L. (2026). LuisMontejo/CUMBIA_PY: CUMBIA_PY [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.21926251
 
 **BibTeX:**
 ```bibtex
